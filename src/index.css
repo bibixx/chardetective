@@ -5,7 +5,7 @@ html {
 }
 
 body {
-  font-family: "Inter", sans-serif;
+  font-family: var(--font-text);
   font-weight: 400;
   color: var(--text-color);
   background-color: var(--background-color-1);

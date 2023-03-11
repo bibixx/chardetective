@@ -1,5 +1,6 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import * as iconv from "iconv-lite";
+import { FixedSizeList as List, ListOnScrollProps } from "react-window";
 import styles from "./FoundEncoding.module.scss";
 import encodingsMap from "iconv-lite/encodings";
 import type { Buffer } from "buffer";
@@ -21,9 +22,20 @@ export const FoundEncoding = ({ file, buffer, goBackToIntro }: FoundEncodingProp
     return Object.fromEntries(ALL_ENCODINGS.map((encoding) => [encoding, iconv.decode(buffer, encoding)] as const));
   }, [buffer]);
 
-  const matchingEncodings = useMemo(() => {
-    return findMatchingEncodings(buffer, comparisons, decodedPermutations);
-  }, [buffer, comparisons, decodedPermutations]);
+  const [matchingEncodings, setMatchingEncodings] = useState<string[]>([]);
+  const { pane1Ref, pane2Ref, onPane1Scroll, onPane2Scroll } = useSyncedScroll();
+
+  useEffect(() => {
+    const id = requestIdleCallback(
+      () => {
+        // Add loading state for async loading
+        setMatchingEncodings(findMatchingEncodings(comparisons, decodedPermutations));
+      },
+      { timeout: 100 }
+    );
+
+    return () => cancelIdleCallback(id);
+  }, [comparisons, decodedPermutations]);
 
   useEffect(() => {
     if (matchingEncodings == null) {
@@ -65,7 +77,19 @@ export const FoundEncoding = ({ file, buffer, goBackToIntro }: FoundEncodingProp
     [comparisons]
   );
 
-  const onCharacterClicked = useCallback((index: number, character: string) => {
+  const onCharacterSelected = useCallback((index: number, character: string | null) => {
+    if (character === null) {
+      setComparisons((c) => {
+        const newC = { ...c };
+
+        delete newC[index];
+
+        return newC;
+      });
+
+      return;
+    }
+
     setComparisons((c) => ({
       ...c,
       [index]: character,
@@ -101,7 +125,7 @@ export const FoundEncoding = ({ file, buffer, goBackToIntro }: FoundEncodingProp
             Select Another File
           </Button>
           <Button variant="primary" onClick={onDownload}>
-            Download Converted File
+            Download in UTF-8
           </Button>
         </div>
       </div>
@@ -112,7 +136,9 @@ export const FoundEncoding = ({ file, buffer, goBackToIntro }: FoundEncodingProp
               selectedCharacters={selectedCharacters}
               text={rawFileContents}
               isSelectable
-              onCharacterSelected={onCharacterClicked}
+              onCharacterSelected={onCharacterSelected}
+              listRef={pane1Ref}
+              onListScroll={onPane1Scroll}
             />
           )}
         </div>
@@ -122,7 +148,9 @@ export const FoundEncoding = ({ file, buffer, goBackToIntro }: FoundEncodingProp
               selectedCharacters={selectedCharacters}
               text={decodedFileContents}
               isSelectable
-              onCharacterSelected={onCharacterClicked}
+              onCharacterSelected={onCharacterSelected}
+              listRef={pane2Ref}
+              onListScroll={onPane2Scroll}
             />
           )}
         </div>
@@ -145,11 +173,7 @@ const ALL_ENCODINGS = getEncodingsList();
 
 const numberEntries = (obj: Record<number, string>) => Object.entries(obj) as unknown as [number, string][];
 
-const findMatchingEncodings = (
-  buffer: Buffer,
-  comparisons: Record<number, string>,
-  decodedPermutations: Record<string, string>
-) => {
+const findMatchingEncodings = (comparisons: Record<number, string>, decodedPermutations: Record<string, string>) => {
   const comparisonsEntries = numberEntries(comparisons);
   const foundEncodings = [];
 
@@ -162,4 +186,28 @@ const findMatchingEncodings = (
   }
 
   return foundEncodings;
+};
+
+const useSyncedScroll = () => {
+  const pane1Ref = useRef<List | null>(null);
+  const pane2Ref = useRef<List | null>(null);
+
+  const onPane1Scroll = useCallback((props: ListOnScrollProps) => {
+    if (!props.scrollUpdateWasRequested) {
+      pane2Ref.current?.scrollTo(props.scrollOffset);
+    }
+  }, []);
+
+  const onPane2Scroll = useCallback((props: ListOnScrollProps) => {
+    if (!props.scrollUpdateWasRequested) {
+      pane1Ref.current?.scrollTo(props.scrollOffset);
+    }
+  }, []);
+
+  return {
+    pane1Ref,
+    pane2Ref,
+    onPane1Scroll,
+    onPane2Scroll,
+  };
 };

@@ -37,6 +37,7 @@ export const DropZone = ({ onSelect, compact = false, label }: DropZoneProps) =>
     };
   };
 
+  // TODO: Error handling
   return (
     <ReactDropzone
       onDrop={onInternalSelect}

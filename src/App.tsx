@@ -14,6 +14,7 @@ function App() {
 
   const onSelect = useCallback(
     async (file: File) => {
+      // Add loading state for async loading
       const arrayBuffer = await file.arrayBuffer();
       const buffer = new Buffer(arrayBuffer);
 
@@ -23,7 +24,7 @@ function App() {
   );
 
   return (
-    <Layout onHeaderClick={goBackToIntro}>
+    <Layout onHeaderClick={state.type !== "intro" ? goBackToIntro : undefined}>
       {state.type === "intro" && <Intro onSelect={onSelect} />}
       {state.type === "foundEncoding" && (
         <FoundEncoding file={state.file} buffer={state.buffer} goBackToIntro={goBackToIntro} />

@@ -4,7 +4,7 @@
   height: 40px;
   appearance: none;
   font: inherit;
-  font-weight: 400;
+  font-weight: 500;
   font-size: 14px;
   border: none;
   border-radius: 9999px;
@@ -16,7 +16,8 @@
     background: var(--button-primary-background);
     color: var(--button-primary-color);
 
-    &:hover {
+    &:hover,
+    &:focus-visible {
       opacity: 0.6;
     }
   }
@@ -25,7 +26,8 @@
     background: var(--button-secondary-background);
     color: var(--button-secondary-color);
 
-    &:hover {
+    &:hover,
+    &:focus-visible {
       opacity: 0.6;
     }
   }

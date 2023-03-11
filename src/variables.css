@@ -1,4 +1,8 @@
 :root {
+  --font-text: "Inter", sans-serif;
+  --font-mono: "IBM Plex Mono", monospace;
+  --font-logo: "Unbounded", cursive;
+
   --lead-color: hsl(93, 75%, 59%);
   --header-shadow: hsl(123, 62%, 24%);
   --lead-contrast: hsl(94, 7%, 20%);
@@ -17,6 +21,8 @@
 
   --drop-zone-background: var(--lead-color);
   --drop-zone-background-border: var(--lead-color);
+
+  --popup-input-focus-color: hsl(93, 75%, 40%);
 
   --transition-function: cubic-bezier(0.4, 0, 0.2, 1);
   --transition-timing-fast: 150ms;
