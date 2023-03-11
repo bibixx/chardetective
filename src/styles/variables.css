@@ -1,5 +1,6 @@
 :root {
-  --font-text: "Inter", sans-serif;
+  /* TODO: Import font file */
+  --font-text: "Satoshi", sans-serif;
   --font-mono: "IBM Plex Mono", monospace;
   --font-logo: "Unbounded", cursive;
 
@@ -9,9 +10,11 @@
 
   --button-primary-background: var(--lead-color);
   --button-primary-color: var(--lead-contrast);
+  --button-primary-background-focus: hsl(93, 70%, 40%);
 
   --button-secondary-background: hsla(0, 0%, 93%, 0.11);
   --button-secondary-color: var(--lead-color);
+  --button-secondary-background-focus: hsla(0, 0%, 93%, 0.07);
 
   --background-color-1: #252728;
   --background-color-2: #1c1c1e;
@@ -22,7 +25,10 @@
   --drop-zone-background: var(--lead-color);
   --drop-zone-background-border: var(--lead-color);
 
-  --popup-input-focus-color: hsl(93, 75%, 40%);
+  --popup-input-background: hsl(93, 75%, 95%);
+  --popup-input-background-focus: hsl(93, 75%, 88%);
+  --popup-button-background: var(--popup-input-background);
+  --popup-button-background-focus: var(--popup-input-background-focus);
 
   --transition-function: cubic-bezier(0.4, 0, 0.2, 1);
   --transition-timing-fast: 150ms;

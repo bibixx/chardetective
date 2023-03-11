@@ -10,6 +10,9 @@ interface CharacterSelectProps {
   isSelectable?: boolean;
   selectedCharacters: number[];
   onCharacterSelected?: (index: number, character: string | null) => void;
+  comparisons: {
+    [key: number]: string;
+  };
 
   listRef?: MutableRefObject<List | null>;
   onListScroll?: (props: ListOnScrollProps) => void;
@@ -20,6 +23,7 @@ interface LineData {
   isSelectable: boolean;
   lineLengths: number[];
   onCharacterClicked: (newIndex: number) => void;
+  onClearCharacter: (index: number) => void;
   selectedCharacters: number[];
   selectedElementIndex: number | null;
   setSelectedElement: (ref: HTMLSpanElement | null) => void;
@@ -37,19 +41,34 @@ export const CharacterSelect = ({
   onCharacterSelected,
   listRef,
   onListScroll,
+  comparisons,
 }: CharacterSelectProps) => {
   const lines = useMemo(() => text.split("\n"), [text]);
   const lineLengths = useMemo(() => lines.map((l) => l.length + 1), [lines]);
-  const lineHeight = useMemo(() => getCharacterHeight(), []);
   const wrapperRef = useRef<HTMLPreElement | null>(null);
 
   const [selectedElementIndex, setSelectedElementIndex] = useState<number | null>(null);
   const [selectedElement, setSelectedElement] = useState<HTMLSpanElement | null>(null);
 
+  const selectedCharacter = useMemo(() => {
+    if (selectedElementIndex == null) {
+      return "";
+    }
+
+    return comparisons[selectedElementIndex] ?? "";
+  }, [comparisons, selectedElementIndex]);
   const onCharacterSelectPopupClose = () => {
     setSelectedElement(null);
     setSelectedElementIndex(null);
   };
+
+  const onClearCharacter = useCallback(
+    (index: number) => {
+      onCharacterSelected?.(index, null);
+      onCharacterSelectPopupClose();
+    },
+    [onCharacterSelected]
+  );
 
   const onCharacterClicked = useCallback(
     (newIndex: number) => {
@@ -70,7 +89,7 @@ export const CharacterSelect = ({
     onCharacterSelectPopupClose();
   };
 
-  const lineData = useMemo(
+  const lineData: LineData = useMemo(
     () => ({
       lines,
       isSelectable,
@@ -79,8 +98,9 @@ export const CharacterSelect = ({
       selectedCharacters,
       selectedElementIndex,
       setSelectedElement,
+      onClearCharacter,
     }),
-    [isSelectable, lineLengths, lines, onCharacterClicked, selectedCharacters, selectedElementIndex]
+    [isSelectable, lineLengths, lines, onCharacterClicked, onClearCharacter, selectedCharacters, selectedElementIndex]
   );
 
   return (
@@ -90,7 +110,7 @@ export const CharacterSelect = ({
           <List<LineData>
             height={height}
             itemCount={lines.length}
-            itemSize={lineHeight}
+            itemSize={21}
             width={width}
             itemData={lineData}
             ref={listRef}
@@ -105,6 +125,7 @@ export const CharacterSelect = ({
         onClose={onCharacterSelectPopupClose}
         onSelect={onSelect}
         parentRef={wrapperRef}
+        selectedCharacter={selectedCharacter}
       />
     </pre>
   );
@@ -116,6 +137,7 @@ const Line = ({ data, index: lineIndex, style }: LineProps) => {
     isSelectable,
     lineLengths,
     onCharacterClicked,
+    onClearCharacter,
     selectedCharacters,
     selectedElementIndex,
     setSelectedElement,
@@ -128,8 +150,12 @@ const Line = ({ data, index: lineIndex, style }: LineProps) => {
         const charactersBefore = sum(lineLengths.slice(0, lineIndex));
         const fullTextIndex = charactersBefore + characterIndex;
 
-        const onCharacterClick = () => {
-          onCharacterClicked(fullTextIndex);
+        const onCharacterClick = (e: React.MouseEvent) => {
+          if (e.metaKey) {
+            onClearCharacter(fullTextIndex);
+          } else {
+            onCharacterClicked(fullTextIndex);
+          }
         };
 
         const isSelectedForPopup = selectedElementIndex === fullTextIndex;
@@ -158,18 +184,6 @@ const Line = ({ data, index: lineIndex, style }: LineProps) => {
       <br />
     </span>
   );
-};
-
-const getCharacterHeight = () => {
-  const $wrapper = document.createElement("div");
-  $wrapper.classList.add(styles.mono);
-  $wrapper.textContent = "a";
-  document.body.appendChild($wrapper);
-
-  const height = $wrapper.clientHeight;
-  $wrapper.remove();
-
-  return height;
 };
 
 function sum(array: number[]) {

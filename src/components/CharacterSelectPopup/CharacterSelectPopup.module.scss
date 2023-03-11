@@ -1,9 +1,17 @@
+@mixin insetBoxShadowBorder($color, $top: 0, $right: 0, $bottom: 0, $left: 0) {
+  box-shadow: inset #{$right * -1}px 0 $color, inset #{$left}px 0 $color, inset 0 #{$bottom * -1}px $color,
+    inset 0 #{$top}px $color;
+}
+
+@mixin boxShadowBorder($color, $top: 0, $right: 0, $bottom: 0, $left: 0) {
+  box-shadow: #{$left * -1}px 0 $color, #{$right}px 0 $color, 0 #{$top * -1}px $color, 0 #{$bottom}px $color;
+}
+
 .popup {
   background: var(--lead-color);
   color: var(--lead-contrast);
   padding: 8px;
   min-width: 176px;
-  border-radius: 4px;
   user-select: text;
   z-index: 101;
   opacity: 0;
@@ -12,7 +20,7 @@
   transition-property: opacity, visibility;
   font-family: var(--font-text);
   font-weight: 400;
-  box-shadow: -1px 0 var(--background-color-1), 1px 0 var(--background-color-1), 0 -1px var(--background-color-1);
+  @include boxShadowBorder(var(--lead-contrast), 2, 2, 0, 2);
 
   &.placementTopStart {
     border-bottom-left-radius: 0;
@@ -40,19 +48,21 @@
 }
 
 .input {
-  background: white;
+  background: var(--popup-input-background);
   color: var(--lead-contrast);
   font: inherit;
   font-family: var(--font-mono);
   padding: 4px 8px;
-  padding-left: 16px;
   width: 48px;
   transition: var(--transition-fast);
-  transition-property: background;
+  transition-property: background, box-shadow;
+  flex: 1;
+  box-shadow: inset 0 0 0 0 var(--lead-contrast);
 
   &:focus-visible {
-    // background: var(--popup-input-focus-color);
-    // outline: none;
+    box-shadow: inset 0 0 0 1px var(--lead-contrast);
+    background: var(--popup-input-background-focus);
+    outline: none;
   }
 }
 
@@ -63,45 +73,39 @@
     border: 1px solid var(--lead-contrast);
 
     &:first-child {
-      border-top-left-radius: 9999px;
-      border-bottom-left-radius: 9999px;
       border-right: 0;
     }
 
     &:last-child {
-      border-top-right-radius: 9999px;
-      border-bottom-right-radius: 9999px;
       border-left: 0;
     }
   }
 }
 
 .button {
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
   font: inherit;
-  background: white;
+  background: var(--popup-button-background);
   color: var(--lead-contrast);
   font-weight: 500;
   font-size: 14px;
   transition: var(--transition-fast);
-  transition-property: background;
+  transition-property: background, box-shadow;
   cursor: pointer;
   padding: 0 8px;
+  @include insetBoxShadowBorder(var(--lead-contrast), 0, 0, 0, 0);
 
   &:hover,
   &:focus-visible {
-    background: var(--popup-input-focus-color);
-  }
+    background: var(--popup-button-background-focus);
+    outline: none;
+    @include insetBoxShadowBorder(var(--lead-contrast), 1, 1, 1, 1);
 
-  &:focus-visible {
-    position: relative;
-    z-index: 1;
-    outline: 2px solid var(--background-color-1);
-  }
-
-  &:last-child {
-    padding-right: 16px;
+    *:focus-visible + & {
+      @include insetBoxShadowBorder(var(--lead-contrast), 1, 1, 1, 0);
+    }
   }
 }

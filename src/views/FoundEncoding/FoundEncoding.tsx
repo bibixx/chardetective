@@ -6,6 +6,9 @@ import encodingsMap from "iconv-lite/encodings";
 import type { Buffer } from "buffer";
 import { CharacterSelect } from "../../components/CharacterSelect/CharacterSelect";
 import { Button } from "../../components/Button/Button";
+import { ChevronDown, Download, File, Trash2 } from "react-feather";
+import { formatEncoding } from "../../utils/formatEncoding";
+import cn from "classnames";
 
 interface FoundEncodingProps {
   file: File;
@@ -38,12 +41,12 @@ export const FoundEncoding = ({ file, buffer, goBackToIntro }: FoundEncodingProp
   }, [comparisons, decodedPermutations]);
 
   useEffect(() => {
-    if (matchingEncodings == null) {
+    if (matchingEncodings == null || matchingEncodings.length === 0) {
       setSelectedEncoding(null);
       return;
     }
 
-    setSelectedEncoding(matchingEncodings[0]);
+    setSelectedEncoding(matchingEncodings[0]!);
   }, [matchingEncodings]);
 
   const rawFileContents = useMemo(() => {
@@ -96,41 +99,31 @@ export const FoundEncoding = ({ file, buffer, goBackToIntro }: FoundEncodingProp
     }));
   }, []);
 
+  const clearComparisons = () => setComparisons({});
+
   return (
     <div className={styles.wrapper}>
       <div className={styles.header}>
-        {matchingEncodings && (
-          <select
-            name="selectedEncoding"
-            id="selectedEncoding"
-            value={selectedEncoding ?? "__empty__"}
-            onChange={(e) => {
-              setSelectedEncoding(e.target.value);
-            }}
-          >
-            {matchingEncodings.length === 0 && (
-              <option value="__empty__" disabled>
-                No matching encoding found
-              </option>
-            )}
-            {matchingEncodings.map((encoding) => (
-              <option key={encoding} value={encoding}>
-                {encoding}
-              </option>
-            ))}
-          </select>
-        )}
-        <div className={styles.buttonsWrapper}>
-          <Button variant="secondary" onClick={goBackToIntro}>
-            Select Another File
+        <div className={cn(styles.buttonsWrapper, styles.left)}>
+          <Button disabled={selectedEncoding === null} variant="primary" onClick={onDownload} icon={Download}>
+            Download {formatEncoding(selectedEncoding, "short")} as {formatEncoding("utf8", "short")}
           </Button>
-          <Button variant="primary" onClick={onDownload}>
-            Download in UTF-8
+        </div>
+
+        <div className={cn(styles.buttonsWrapper, styles.right)}>
+          <Button variant="secondary" onClick={clearComparisons} icon={Trash2}>
+            Clear Character Selection
+          </Button>
+          <Button variant="secondary" onClick={goBackToIntro} icon={File}>
+            Select Another File
           </Button>
         </div>
       </div>
       <div className={styles.text}>
         <div className={styles.textColumn}>
+          <div className={styles.textColumnHeaderWrapper}>
+            <h2 className={styles.textColumnHeader}>{formatEncoding("utf8")}</h2>
+          </div>
           {rawFileContents && (
             <CharacterSelect
               selectedCharacters={selectedCharacters}
@@ -139,10 +132,47 @@ export const FoundEncoding = ({ file, buffer, goBackToIntro }: FoundEncodingProp
               onCharacterSelected={onCharacterSelected}
               listRef={pane1Ref}
               onListScroll={onPane1Scroll}
+              comparisons={comparisons}
             />
           )}
         </div>
         <div className={styles.textColumn}>
+          <div className={styles.textColumnHeaderWrapper}>
+            {matchingEncodings && (
+              <Button
+                variant="primary"
+                icon={ChevronDown}
+                className={styles.selectButton}
+                style={{ display: "inline-flex" }}
+              >
+                {selectedEncoding != null
+                  ? `(1/${matchingEncodings.length}) ${formatEncoding(selectedEncoding) ?? ""}`
+                  : "No matching encoding found"}
+              </Button>
+            )}
+            {matchingEncodings && (
+              <select
+                style={{ display: "inline-block" }}
+                name="selectedEncoding"
+                id="selectedEncoding"
+                value={selectedEncoding ?? "__empty__"}
+                onChange={(e) => {
+                  setSelectedEncoding(e.target.value);
+                }}
+              >
+                {matchingEncodings.length === 0 && (
+                  <option value="__empty__" disabled>
+                    No matching encoding found
+                  </option>
+                )}
+                {matchingEncodings.map((encoding) => (
+                  <option key={encoding} value={encoding}>
+                    {formatEncoding(encoding)}
+                  </option>
+                ))}
+              </select>
+            )}
+          </div>
           {decodedFileContents && (
             <CharacterSelect
               selectedCharacters={selectedCharacters}
@@ -151,6 +181,7 @@ export const FoundEncoding = ({ file, buffer, goBackToIntro }: FoundEncodingProp
               onCharacterSelected={onCharacterSelected}
               listRef={pane2Ref}
               onListScroll={onPane2Scroll}
+              comparisons={comparisons}
             />
           )}
         </div>
@@ -160,8 +191,9 @@ export const FoundEncoding = ({ file, buffer, goBackToIntro }: FoundEncodingProp
 };
 
 const getEncodingsList = () => {
+  const BANNED_ENCODINGS = ["base64", "hex", "utf8"];
   return Object.entries(encodingsMap).reduce((acc, [encoding, encodingValue]) => {
-    if (typeof encodingValue !== "string" && !encoding.startsWith("_")) {
+    if (typeof encodingValue !== "string" && !encoding.startsWith("_") && !BANNED_ENCODINGS.includes(encoding)) {
       acc.push(encoding);
     }
 

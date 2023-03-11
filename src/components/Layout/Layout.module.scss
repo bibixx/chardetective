@@ -13,25 +13,13 @@
   width: 100%;
   margin-bottom: 8px;
 
-  .h1 {
-    font-weight: 500;
-    font-size: 24px;
-    margin: 0;
-    font-family: var(--font-logo);
-    position: relative;
-    user-select: none;
-    color: var(--lead-color);
-    text-shadow: 3px 3px var(--header-shadow);
-  }
-
   .headerButton {
+    display: flex;
     border: none;
     background: none;
     margin: 0;
     padding: 0;
-    display: block;
     cursor: pointer;
-    border-radius: 4px;
   }
 }
 
@@ -50,7 +38,6 @@
   a {
     color: inherit;
     transition: color 0.1s ease-in-out;
-    border-radius: 2px;
 
     &:hover,
     &:focus-visible {

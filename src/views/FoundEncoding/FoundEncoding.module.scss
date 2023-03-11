@@ -16,24 +16,44 @@
 }
 
 .textColumn {
-  font-family: "IBM Plex Mono", monospace;
-  font-weight: 400;
   margin: 0;
+}
+
+.textColumnHeaderWrapper {
+  height: 36px;
+  margin-bottom: 16px;
+}
+
+.textColumnHeader {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 700;
+  margin-bottom: 16px;
+  color: var(--text-muted);
 }
 
 .buttonsWrapper {
   width: 100%;
   display: flex;
-  justify-content: center;
   gap: 8px;
+
+  &.left {
+    justify-content: flex-start;
+  }
+
+  &.right {
+    justify-content: flex-end;
+  }
 }
 
 .header {
   width: 100%;
-  display: grid;
-  grid-template-columns: 1fr auto;
+  display: flex;
+  justify-content: space-between;
   align-items: center;
-  justify-content: flex-end;
-  justify-items: flex-start;
   margin-bottom: 24px;
+}
+
+.selectButton {
+  min-width: 352px;
 }

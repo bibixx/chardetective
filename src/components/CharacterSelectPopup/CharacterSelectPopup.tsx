@@ -4,29 +4,36 @@ import { usePopper } from "react-popper";
 import { useClickOutsidePopup } from "./hooks/useClickOutsidePopup";
 import styles from "./CharacterSelectPopup.module.scss";
 import { Save, Trash2 } from "react-feather";
+import { useOnEsc } from "./hooks/useOnEsc";
 
 interface CharacterSelectPopupProps {
   anchor: HTMLSpanElement | null;
   onClose: () => void;
   onSelect: (character: string | null) => void;
   parentRef: MutableRefObject<HTMLElement | null>;
+  selectedCharacter: string;
 }
 
-export const CharacterSelectPopup = ({ anchor, onClose, onSelect, parentRef }: CharacterSelectPopupProps) => {
-  const [selectedCharacter, setSelectedCharacter] = useState<string>("");
+export const CharacterSelectPopup = ({
+  selectedCharacter: initialSelectedCharacter,
+  anchor,
+  onClose,
+  onSelect,
+  parentRef,
+}: CharacterSelectPopupProps) => {
+  const isOpen = useMemo(() => anchor != null, [anchor]);
+  const [selectedCharacter, setSelectedCharacter] = useState<string>(initialSelectedCharacter);
+  useEffect(() => {
+    if (isOpen) {
+      setSelectedCharacter(initialSelectedCharacter);
+    }
+  }, [initialSelectedCharacter, isOpen]);
 
   const [popperElement, setPopperElement] = useState<HTMLDivElement | null>(null);
   const popperElementRef = useRef(popperElement);
   useEffect(() => {
     popperElementRef.current = popperElement;
   }, [popperElement]);
-
-  const isOpen = useMemo(() => anchor != null, [anchor]);
-  useEffect(() => {
-    if (!isOpen) {
-      setSelectedCharacter("");
-    }
-  }, [isOpen]);
 
   const inputRef = useRef<HTMLInputElement>(null);
   useEffect(() => {
@@ -41,6 +48,7 @@ export const CharacterSelectPopup = ({ anchor, onClose, onSelect, parentRef }: C
     popupRef: popperElementRef,
     parentRef,
   });
+  useOnEsc({ onEsc: onClose, isEnabled: isOpen });
 
   const {
     styles: popperStyles,

@@ -1,5 +1,6 @@
 import { ReactNode } from "react";
 import styles from "./Layout.module.scss";
+import { Logo } from "./Logo";
 
 interface LayoutProps {
   children: ReactNode;
@@ -11,7 +12,7 @@ export const Layout = ({ children, onHeaderClick }: LayoutProps) => {
     <div className={styles.wrapper}>
       <header className={styles.header}>
         <button onClick={onHeaderClick} className={styles.headerButton}>
-          <h1 className={styles.h1}>CharDetective</h1>
+          <Logo />
         </button>
       </header>
       <div className={styles.content}>{children}</div>

@@ -1,24 +1,33 @@
 .button {
-  display: block;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
   padding: 0 16px;
-  height: 40px;
+  height: 36px;
   appearance: none;
   font: inherit;
   font-weight: 500;
   font-size: 14px;
   border: none;
-  border-radius: 9999px;
-  cursor: pointer;
   transition: var(--transition-fast);
   transition-property: opacity, background, color;
+
+  &:disabled {
+    opacity: 0.5;
+  }
+
+  &:not(:disabled) {
+    cursor: pointer;
+  }
 
   &.primary {
     background: var(--button-primary-background);
     color: var(--button-primary-color);
 
-    &:hover,
+    &:not(:disabled):hover,
     &:focus-visible {
-      opacity: 0.6;
+      background: var(--button-primary-background-focus);
     }
   }
 
@@ -26,9 +35,9 @@
     background: var(--button-secondary-background);
     color: var(--button-secondary-color);
 
-    &:hover,
+    &:not(:disabled):hover,
     &:focus-visible {
-      opacity: 0.6;
+      background: var(--button-secondary-background-focus);
     }
   }
 }
