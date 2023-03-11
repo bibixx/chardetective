@@ -1,0 +1,29 @@
+:root {
+  --lead-color: hsl(93, 75%, 59%);
+  --header-shadow: hsl(123, 62%, 24%);
+  --lead-contrast: hsl(94, 7%, 20%);
+
+  --button-primary-background: var(--lead-color);
+  --button-primary-color: var(--lead-contrast);
+
+  --button-secondary-background: hsla(0, 0%, 93%, 0.11);
+  --button-secondary-color: var(--lead-color);
+
+  --background-color-1: #252728;
+  --background-color-2: #1c1c1e;
+
+  --text-color: hsla(0, 0%, 97%, 1);
+  --text-muted: hsla(88, 20%, 90%, 0.5);
+
+  --drop-zone-background: var(--lead-color);
+  --drop-zone-background-border: var(--lead-color);
+
+  --transition-function: cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-timing-fast: 150ms;
+  --transition-timing-medium: 200ms;
+  --transition-timing-slow: 300ms;
+
+  --transition-fast: var(--transition-function) var(--transition-timing-fast);
+  --transition-medium: var(--transition-function) var(--transition-timing-medium);
+  --transition-slow: var(--transition-function) var(--transition-timing-slow);
+}

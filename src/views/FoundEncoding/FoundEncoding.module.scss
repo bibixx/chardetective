@@ -1,0 +1,40 @@
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  height: 100%;
+}
+
+.text {
+  height: 100%;
+  width: 100%;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 32px;
+  flex: 1;
+  overflow: auto;
+}
+
+.textColumn {
+  overflow: auto;
+  font-family: "IBM Plex Mono", monospace;
+  font-weight: 400;
+  margin: 0;
+}
+
+.buttonsWrapper {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+}
+
+.header {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  justify-content: flex-end;
+  justify-items: flex-start;
+  margin-bottom: 24px;
+}

@@ -1,0 +1,32 @@
+.button {
+  display: block;
+  padding: 0 16px;
+  height: 40px;
+  appearance: none;
+  font: inherit;
+  font-weight: 400;
+  font-size: 14px;
+  border: none;
+  border-radius: 9999px;
+  cursor: pointer;
+  transition: var(--transition-fast);
+  transition-property: opacity, background, color;
+
+  &.primary {
+    background: var(--button-primary-background);
+    color: var(--button-primary-color);
+
+    &:hover {
+      opacity: 0.6;
+    }
+  }
+
+  &.secondary {
+    background: var(--button-secondary-background);
+    color: var(--button-secondary-color);
+
+    &:hover {
+      opacity: 0.6;
+    }
+  }
+}
