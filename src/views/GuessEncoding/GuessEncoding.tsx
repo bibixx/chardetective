@@ -91,6 +91,9 @@ export const GuessEncoding = ({ file, decodedPermutations, onNewFileSelect }: Gu
 
   return (
     <div className={styles.wrapper}>
+      <div className={styles.header}>
+        To begin, select characters that are encoded incorrectly and type in what should be the correct one.
+      </div>
       <div className={styles.text}>
         <div className={styles.textColumn}>
           <div className={styles.textColumnHeaderWrapper}>
@@ -121,7 +124,7 @@ export const GuessEncoding = ({ file, decodedPermutations, onNewFileSelect }: Gu
               }
             />
 
-            <Button disabled={selectedEncoding === null} variant="secondary" onClick={onDownload} icon={Download}>
+            <Button disabled={selectedEncoding === null} variant="primary" onClick={onDownload} icon={Download}>
               Download as {formatEncoding("utf8", "short")}
             </Button>
           </div>

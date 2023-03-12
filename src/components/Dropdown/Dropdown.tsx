@@ -24,7 +24,7 @@ export const Dropdown = ({ items, selectedValueId, setSelectedValue, renderTrigg
       <Listbox value={selectedValue ?? ""} onChange={setSelectedValue}>
         <Listbox.Button
           as={Button}
-          variant="primary"
+          variant="secondary"
           className={({ open }) => cn(styles.selectButton, { [styles.isOpen]: open })}
           icon={ChevronDown}
         >
