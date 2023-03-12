@@ -1,65 +1,52 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import * as iconv from "iconv-lite";
 import { FixedSizeList as List, ListOnScrollProps } from "react-window";
-import styles from "./FoundEncoding.module.scss";
-import encodingsMap from "iconv-lite/encodings";
-import type { Buffer } from "buffer";
+import styles from "./GuessEncoding.module.scss";
 import { CharacterSelect } from "../../components/CharacterSelect/CharacterSelect";
 import { Button } from "../../components/Button/Button";
-import { ChevronDown, Download, File, Trash2 } from "react-feather";
+import { Download, File, Trash2 } from "react-feather";
 import { formatEncoding } from "../../utils/formatEncoding";
 import cn from "classnames";
+import { Dropdown, DropdownListItem } from "../../components/Dropdown/Dropdown";
+import { DropZone } from "../../components/DropZone/DropZone";
 
-interface FoundEncodingProps {
+interface GuessEncodingProps {
   file: File;
-  buffer: Buffer;
   goBackToIntro: () => void;
+  onNewFileSelect: (file: File) => void;
+  decodedPermutations: Record<string, string>;
 }
 
-export const FoundEncoding = ({ file, buffer, goBackToIntro }: FoundEncodingProps) => {
+export const GuessEncoding = ({ file, decodedPermutations, onNewFileSelect }: GuessEncodingProps) => {
   const [selectedEncoding, setSelectedEncoding] = useState<string | null>(null);
-
   const [comparisons, setComparisons] = useState<{ [key: number]: string }>({});
-
-  const decodedPermutations = useMemo(() => {
-    return Object.fromEntries(ALL_ENCODINGS.map((encoding) => [encoding, iconv.decode(buffer, encoding)] as const));
-  }, [buffer]);
 
   const [matchingEncodings, setMatchingEncodings] = useState<string[]>([]);
   const { pane1Ref, pane2Ref, onPane1Scroll, onPane2Scroll } = useSyncedScroll();
 
-  useEffect(() => {
-    const id = requestIdleCallback(
-      () => {
-        // Add loading state for async loading
-        setMatchingEncodings(findMatchingEncodings(comparisons, decodedPermutations));
-      },
-      { timeout: 100 }
-    );
+  useEffect(
+    function calculateMatchingEncodings() {
+      setMatchingEncodings(findMatchingEncodings(comparisons, decodedPermutations));
+    },
+    [comparisons, decodedPermutations]
+  );
 
-    return () => cancelIdleCallback(id);
-  }, [comparisons, decodedPermutations]);
+  useEffect(
+    function updateDropdownState() {
+      if (matchingEncodings?.[0] == null || matchingEncodings.length === 0) {
+        setSelectedEncoding(null);
+        return;
+      }
 
-  useEffect(() => {
-    if (matchingEncodings == null || matchingEncodings.length === 0) {
-      setSelectedEncoding(null);
-      return;
-    }
+      setSelectedEncoding(matchingEncodings[0]);
+    },
+    [matchingEncodings]
+  );
 
-    setSelectedEncoding(matchingEncodings[0]!);
-  }, [matchingEncodings]);
-
-  const rawFileContents = useMemo(() => {
-    return iconv.decode(buffer, "utf8");
-  }, [buffer]);
-
-  const decodedFileContents = useMemo(() => {
-    if (selectedEncoding == null) {
-      return null;
-    }
-
-    return iconv.decode(buffer, selectedEncoding);
-  }, [buffer, selectedEncoding]);
+  const rawFileContents = useMemo(() => accessPermutation(decodedPermutations, "utf8"), [decodedPermutations]);
+  const decodedFileContents = useMemo(
+    () => accessPermutation(decodedPermutations, selectedEncoding),
+    [decodedPermutations, selectedEncoding]
+  );
 
   const onDownload = () => {
     if (decodedFileContents == null) {
@@ -100,25 +87,10 @@ export const FoundEncoding = ({ file, buffer, goBackToIntro }: FoundEncodingProp
   }, []);
 
   const clearComparisons = () => setComparisons({});
+  const encodingDropdownListItems = useMemo(() => getEncodingListItems(matchingEncodings), [matchingEncodings]);
 
   return (
     <div className={styles.wrapper}>
-      <div className={styles.header}>
-        <div className={cn(styles.buttonsWrapper, styles.left)}>
-          <Button disabled={selectedEncoding === null} variant="primary" onClick={onDownload} icon={Download}>
-            Download {formatEncoding(selectedEncoding, "short")} as {formatEncoding("utf8", "short")}
-          </Button>
-        </div>
-
-        <div className={cn(styles.buttonsWrapper, styles.right)}>
-          <Button variant="secondary" onClick={clearComparisons} icon={Trash2}>
-            Clear Character Selection
-          </Button>
-          <Button variant="secondary" onClick={goBackToIntro} icon={File}>
-            Select Another File
-          </Button>
-        </div>
-      </div>
       <div className={styles.text}>
         <div className={styles.textColumn}>
           <div className={styles.textColumnHeaderWrapper}>
@@ -138,40 +110,20 @@ export const FoundEncoding = ({ file, buffer, goBackToIntro }: FoundEncodingProp
         </div>
         <div className={styles.textColumn}>
           <div className={styles.textColumnHeaderWrapper}>
-            {matchingEncodings && (
-              <Button
-                variant="primary"
-                icon={ChevronDown}
-                className={styles.selectButton}
-                style={{ display: "inline-flex" }}
-              >
-                {selectedEncoding != null
-                  ? `(1/${matchingEncodings.length}) ${formatEncoding(selectedEncoding) ?? ""}`
-                  : "No matching encoding found"}
-              </Button>
-            )}
-            {matchingEncodings && (
-              <select
-                style={{ display: "inline-block" }}
-                name="selectedEncoding"
-                id="selectedEncoding"
-                value={selectedEncoding ?? "__empty__"}
-                onChange={(e) => {
-                  setSelectedEncoding(e.target.value);
-                }}
-              >
-                {matchingEncodings.length === 0 && (
-                  <option value="__empty__" disabled>
-                    No matching encoding found
-                  </option>
-                )}
-                {matchingEncodings.map((encoding) => (
-                  <option key={encoding} value={encoding}>
-                    {formatEncoding(encoding)}
-                  </option>
-                ))}
-              </select>
-            )}
+            <Dropdown
+              items={encodingDropdownListItems}
+              setSelectedValue={({ id }) => setSelectedEncoding(id)}
+              selectedValueId={selectedEncoding}
+              renderTrigger={(selectedValue) =>
+                selectedValue != null
+                  ? `(1/${matchingEncodings.length}) ${selectedValue.name ?? ""}`
+                  : "No matching encoding found"
+              }
+            />
+
+            <Button disabled={selectedEncoding === null} variant="secondary" onClick={onDownload} icon={Download}>
+              Download as {formatEncoding("utf8", "short")}
+            </Button>
           </div>
           {decodedFileContents && (
             <CharacterSelect
@@ -186,22 +138,19 @@ export const FoundEncoding = ({ file, buffer, goBackToIntro }: FoundEncodingProp
           )}
         </div>
       </div>
+      <div className={styles.footer}>
+        <div className={cn(styles.buttonsWrapper)}>
+          <DropZone onSelect={onNewFileSelect} label="Select, or Drag and Drop Another File" compact />
+          {selectedCharacters.length > 0 && (
+            <Button variant="secondary" onClick={clearComparisons} icon={Trash2}>
+              Clear Character Selection
+            </Button>
+          )}
+        </div>
+      </div>
     </div>
   );
 };
-
-const getEncodingsList = () => {
-  const BANNED_ENCODINGS = ["base64", "hex", "utf8"];
-  return Object.entries(encodingsMap).reduce((acc, [encoding, encodingValue]) => {
-    if (typeof encodingValue !== "string" && !encoding.startsWith("_") && !BANNED_ENCODINGS.includes(encoding)) {
-      acc.push(encoding);
-    }
-
-    return acc;
-  }, [] as string[]);
-};
-
-const ALL_ENCODINGS = getEncodingsList();
 
 const numberEntries = (obj: Record<number, string>) => Object.entries(obj) as unknown as [number, string][];
 
@@ -242,4 +191,16 @@ const useSyncedScroll = () => {
     onPane1Scroll,
     onPane2Scroll,
   };
+};
+
+const getEncodingListItems = (encodings: string[]): DropdownListItem[] => {
+  return encodings.map((encoding): DropdownListItem => ({ id: encoding, name: formatEncoding(encoding) ?? encoding }));
+};
+
+const accessPermutation = (decodedPermutations: Record<string, string>, encoding: string | null) => {
+  if (encoding == null) {
+    return "";
+  }
+
+  return decodedPermutations[encoding] ?? "";
 };

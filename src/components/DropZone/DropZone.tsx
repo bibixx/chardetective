@@ -1,6 +1,8 @@
 import cn from "classnames";
 import { ReactNode, useEffect, useRef, useState } from "react";
 import ReactDropzone from "react-dropzone";
+import { Button } from "../Button/Button";
+import { File as FileIcon } from "react-feather";
 import styles from "./DropZone.module.scss";
 
 interface DropZoneProps {
@@ -15,11 +17,12 @@ export const DropZone = ({ onSelect, compact = false, label }: DropZoneProps) =>
   const isDragging = useIsDragging();
 
   const onInternalSelect = async (files: File[]) => {
-    if (files.length !== 1) {
+    const [file] = files;
+
+    if (file == null) {
       return;
     }
 
-    const [file] = files;
     onSelect(file);
   };
 
@@ -47,6 +50,18 @@ export const DropZone = ({ onSelect, compact = false, label }: DropZoneProps) =>
       validator={validator}
     >
       {({ getRootProps, getInputProps, isDragActive, isDragReject }) => {
+        if (compact) {
+          return (
+            <>
+              <Button {...getRootProps()} variant="secondary" icon={FileIcon}>
+                <input {...getInputProps()} />
+                <div>{label}</div>
+              </Button>
+              <div {...getRootProps()} className={cn(styles.fullScreen, { [styles.isVisible]: isDragging })}></div>
+            </>
+          );
+        }
+
         return (
           <>
             <button

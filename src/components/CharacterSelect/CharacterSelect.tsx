@@ -142,7 +142,7 @@ const Line = ({ data, index: lineIndex, style }: LineProps) => {
     selectedElementIndex,
     setSelectedElement,
   } = data;
-  const line = lines[lineIndex];
+  const line = lines[lineIndex] ?? "";
 
   return (
     <span style={style}>

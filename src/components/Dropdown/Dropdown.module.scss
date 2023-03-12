@@ -1,0 +1,82 @@
+@mixin insetBoxShadowBorder($color, $top: 0, $right: 0, $bottom: 0, $left: 0) {
+  box-shadow: inset #{$right * -1}px 0 $color, inset #{$left}px 0 $color, inset 0 #{$bottom * -1}px $color,
+    inset 0 #{$top}px $color;
+}
+
+.dropdownWrapper {
+  position: relative;
+  display: inline-block;
+
+  &:focus-visible {
+    outline: none;
+  }
+}
+
+.optionsWrapper {
+  position: absolute;
+  width: 100%;
+  z-index: 102;
+  background: var(--background-color-1);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  max-height: 500px;
+  overflow: auto;
+  border: 2px solid var(--text-color);
+
+  &:focus-visible {
+    outline: none;
+  }
+}
+
+.selectButton {
+  min-width: 352px;
+
+  &.isOpen {
+    background: var(--button-primary-background-focus);
+  }
+}
+
+.listItem {
+  display: flex;
+  align-items: center;
+  padding: 8px 16px;
+  height: 36px;
+  font-family: var(--font-text);
+  font-weight: 500;
+  font-size: 14px;
+  color: var(--text-color);
+  gap: 8px;
+  cursor: pointer;
+
+  &.isActive {
+    color: var(--lead-contrast);
+    background: var(--lead-color);
+  }
+}
+
+.iconFiller {
+  width: 20px;
+}
+
+.transitionEnter,
+.transitionLeave {
+  transition: var(--transition-fast);
+  transition-property: opacity;
+}
+
+.transitionEnterFrom {
+  opacity: 0;
+}
+
+.transitionEnterTo {
+  opacity: 1;
+}
+
+.transitionLeaveFrom {
+  opacity: 1;
+}
+
+.transitionLeaveTo {
+  opacity: 0;
+}

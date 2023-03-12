@@ -10,8 +10,10 @@
     "lint": "eslint src/**/*.{ts,tsx}"
   },
   "dependencies": {
+    "@headlessui/react": "^1.7.13",
     "@ibm/plex": "^6.2.0",
     "@popperjs/core": "^2.11.6",
+    "assert-never": "^1.2.1",
     "buffer": "^6.0.3",
     "classnames": "^2.3.2",
     "iconv-lite": "^0.6.3",
@@ -19,6 +21,7 @@
     "react-dom": "^18.2.0",
     "react-dropzone": "^14.2.3",
     "react-feather": "^2.0.10",
+    "react-loader-spinner": "^5.3.4",
     "react-popper": "^2.3.0",
     "react-virtualized-auto-sizer": "^1.0.7",
     "react-window": "^1.8.8",

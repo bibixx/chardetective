@@ -1,9 +1,9 @@
 import { Intro } from "./views/Intro/Intro";
 import { useAppState } from "./hooks/useAppState/useAppState";
 import { Layout } from "./components/Layout/Layout";
-import { FoundEncoding } from "./views/FoundEncoding/FoundEncoding";
+import { GuessEncoding } from "./views/GuessEncoding/GuessEncoding";
 import { useCallback } from "react";
-import { Buffer } from "buffer";
+import { CalculatePermutations } from "./views/CalculatePermutations/CalculatePermutations";
 
 function App() {
   const [state, dispatch] = useAppState();
@@ -12,22 +12,36 @@ function App() {
     dispatch({ type: "resetAction" });
   }, [dispatch]);
 
-  const onSelect = useCallback(
+  const onFileSelect = useCallback(
     async (file: File) => {
-      // Add loading state for async loading
-      const arrayBuffer = await file.arrayBuffer();
-      const buffer = new Buffer(arrayBuffer);
+      dispatch({ type: "fileSelectedAction", file });
+    },
+    [dispatch]
+  );
 
-      dispatch({ type: "fileSelectedAction", file, buffer });
+  const onPermutationsLoaded = useCallback(
+    (permutations: Record<string, string>) => {
+      dispatch({
+        type: "permutationsCalculatedAction",
+        permutations,
+      });
     },
     [dispatch]
   );
 
   return (
     <Layout onHeaderClick={state.type !== "intro" ? goBackToIntro : undefined}>
-      {state.type === "intro" && <Intro onSelect={onSelect} />}
-      {state.type === "foundEncoding" && (
-        <FoundEncoding file={state.file} buffer={state.buffer} goBackToIntro={goBackToIntro} />
+      {state.type === "intro" && <Intro onSelect={onFileSelect} />}
+      {state.type === "loadingPermutations" && (
+        <CalculatePermutations file={state.file} onLoaded={onPermutationsLoaded} />
+      )}
+      {state.type === "guessEncoding" && (
+        <GuessEncoding
+          file={state.file}
+          decodedPermutations={state.permutations}
+          goBackToIntro={goBackToIntro}
+          onNewFileSelect={onFileSelect}
+        />
       )}
     </Layout>
   );
