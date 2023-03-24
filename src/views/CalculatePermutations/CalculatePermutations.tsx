@@ -22,7 +22,10 @@ export const CalculatePermutations = ({ file, onLoaded }: CalculatePermutationsP
         entires.push([encoding, await asyncDecode(buffer, encoding)] as const);
       }
 
-      const newDecodedPermutations = Object.fromEntries(entires);
+      const utfEntry = entires.find(([encoding]) => encoding === "utf8");
+      const utfLength = utfEntry?.[1].length;
+      const matchingEntries = utfLength != null ? entires.filter(([, value]) => value.length === utfLength) : entires;
+      const newDecodedPermutations = Object.fromEntries(matchingEntries);
 
       if (!abort) {
         onLoaded(newDecodedPermutations);
