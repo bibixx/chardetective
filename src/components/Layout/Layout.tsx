@@ -23,8 +23,12 @@ export const Layout = ({ children, onHeaderClick }: LayoutProps) => {
             @bibixx
           </a>
           &nbsp;&bull;&nbsp;
-          <a href="https://github.com/bibixx/char-detective" target="_blank" rel="noreferrer">
+          <a href="https://github.com/bibixx/chardetective" target="_blank" rel="noreferrer">
             GitHub
+          </a>
+          &nbsp;&bull;&nbsp;
+          <a href="https://github.com/bibixx/chardetective/blob/main/LICENSE.md" target="_blank" rel="noreferrer">
+            License
           </a>
         </div>
       </footer>
