@@ -119,7 +119,7 @@ You should have received a copy of the GNU Affero General Public License along w
 
 ## Contact
 
-- Bartosz Legięć (development 👨🏻‍💻) — [@bibix1999](https://twitter.com/bibix1999)
+Bartosz Legięć — [@bibix1999](https://twitter.com/bibix1999)
 
 Project Link: [https://github.com/bibixx/chardetective](https://github.com/bibixx/chardetective)
 
